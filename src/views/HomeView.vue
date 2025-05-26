@@ -31,8 +31,9 @@ export default {
     },
     async getCities() {
       this.cities = [];
-      const querySnapshot = await getDocs(collection(db, "viajes"));
-      querySnapshot.forEach((doc) => {
+      const viajes = collection(db, "viajes")
+      const todosLosViajes = await getDocs(viajes);
+      todosLosViajes.forEach((doc) => {
         console.log(doc.id, " => ", doc.data());
 
         this.cities.push({
@@ -42,6 +43,7 @@ export default {
       });
     }
   },
+  // Cuando el componente o vista está lista para el usuario, es visible, se ejecuta el método mounted
   mounted() {
     this.getCities();
   }
@@ -57,7 +59,7 @@ export default {
       <button @click="addCity">Añadir</button>
     </div>
 
-    <ul>
+    <ul style="margin-top: 50px;">
       <li v-for="city in cities" :key="city.id">{{ city.title }} - {{ city.country }}</li>
     </ul>
 
