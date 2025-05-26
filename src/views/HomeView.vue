@@ -28,10 +28,12 @@ export default {
         });
         console.log("Document written with ID: ", docRef.id);
 
-        this.inputCity = "";
-        this.inputCountry = "";
       }
 
+
+      this.inputCity = "";
+      this.inputCountry = "";
+      this.editingCity = null
       this.getCities();
 
     },
