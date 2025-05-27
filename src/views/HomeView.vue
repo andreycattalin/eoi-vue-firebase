@@ -1,5 +1,5 @@
 <script>
-import { collection, addDoc, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
 export default {
@@ -61,6 +61,11 @@ export default {
         title: this.inputCity,
         country: this.inputCountry,
       });
+    },
+    async deleteCity(city) {
+      const ref = doc(db, "viajes", city.id) // ruta donde queremos eliminar
+      await deleteDoc(ref) // la acción de eliminar
+      await this.getCities()
     }
   },
   // Cuando el componente o vista está lista para el usuario, es visible, se ejecuta el método mounted
@@ -80,8 +85,10 @@ export default {
     </div>
 
     <ul style="margin-top: 50px;">
-      <li v-for="city in cities" :key="city.id">{{ city.title }} - {{ city.country }} <button
-          @click="editCity(city)">Editar</button></li>
+      <li v-for="city in cities" :key="city.id">{{ city.title }} - {{ city.country }}
+        <button @click="editCity(city)">Editar</button>
+        <button style="background-color: red;" @click="deleteCity(city)">Eliminar</button>
+      </li>
     </ul>
 
   </main>
