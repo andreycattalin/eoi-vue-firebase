@@ -1,5 +1,5 @@
 <script>
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
 export default {
@@ -34,21 +34,38 @@ export default {
       this.inputCity = "";
       this.inputCountry = "";
       this.editingCity = null
-      this.getCities();
+      //this.getCities();
 
     },
     async getCities() {
-      this.cities = [];
-      const viajes = collection(db, "viajes")
-      const todosLosViajes = await getDocs(viajes);
-      todosLosViajes.forEach((doc) => {
-        console.log(doc.id, " => ", doc.data());
+      // this.cities = [];
+      // const viajes = collection(db, "viajes")
+      // const todosLosViajes = await getDocs(viajes);
+      // todosLosViajes.forEach((doc) => {
+      //   console.log(doc.id, " => ", doc.data());
 
-        this.cities.push({
-          id: doc.id,
-          ...doc.data()
-        })
+      //   this.cities.push({
+      //     id: doc.id,
+      //     ...doc.data()
+      //   })
+      // });
+
+      const viajesRef = collection(db, "viajes")
+
+      // onSnapshot nos permite escuchar los cambios en tiempo real
+      onSnapshot(viajesRef, (snapshot) => {
+        // dentro del snapshot tenemos todos los datos de la colección
+        this.cities = []; // vaciamos el array para que no se dupliquen los datos
+
+        snapshot.forEach((doc) => {
+          // llenamos el array con los datos de la colecciòn de firestore
+          this.cities.push({
+            id: doc.id,
+            ...doc.data()
+          })
+        });
       });
+
     },
     editCity(city) {
       this.editingCity = city
@@ -65,7 +82,7 @@ export default {
     async deleteCity(city) {
       const ref = doc(db, "viajes", city.id) // ruta donde queremos eliminar
       await deleteDoc(ref) // la acción de eliminar
-      await this.getCities()
+      // await this.getCities()
     }
   },
   // Cuando el componente o vista está lista para el usuario, es visible, se ejecuta el método mounted
