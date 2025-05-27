@@ -1,5 +1,5 @@
 <script>
-import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot, query, where } from "firebase/firestore";
 import { auth, db } from "@/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -28,6 +28,7 @@ export default {
         const docRef = await addDoc(collection(db, "viajes"), {
           title: this.inputCity,
           country: this.inputCountry,
+          owner: auth.currentUser.uid
         });
         console.log("Document written with ID: ", docRef.id);
 
@@ -55,8 +56,10 @@ export default {
 
       const viajesRef = collection(db, "viajes")
 
+      const q = query(viajesRef, where("owner", "==", auth.currentUser.uid));
+
       // onSnapshot nos permite escuchar los cambios en tiempo real
-      onSnapshot(viajesRef, (snapshot) => {
+      onSnapshot(q, (snapshot) => {
         // dentro del snapshot tenemos todos los datos de la colección
         this.cities = []; // vaciamos el array para que no se dupliquen los datos
 
@@ -98,15 +101,9 @@ export default {
     this.getCities();
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        const uid = user.uid;
         this.user = user;
         this.message = 'Usuario logueado ' + user.email;
-        // ...
       } else {
-        // User is signed out
-        // ...
         this.message = 'No hay usuario logueado';
       }
     });
