@@ -1,6 +1,6 @@
 <script>
 import { auth } from '@/firebase/config';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default {
     data() {
@@ -15,7 +15,7 @@ export default {
             signInWithEmailAndPassword(auth, this.email, this.password)
                 .then((userCredential) => {
                     const user = userCredential.user;
-                    this.message = 'Usuario logueado';
+                    this.message = 'Usuario logueado ' + user.email;
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -23,6 +23,16 @@ export default {
                     this.message = errorMessage;
                 })
         }
+    },
+    mounted() {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const uid = user.uid;
+                this.message = 'Usuario logueado ' + user.email;
+            } else {
+                this.message = 'No hay usuario logueado';
+            }
+        });
     }
 }
 </script>

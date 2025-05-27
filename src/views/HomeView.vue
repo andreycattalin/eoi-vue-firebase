@@ -1,6 +1,7 @@
 <script>
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc, onSnapshot } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { auth, db } from "@/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default {
   name: 'HomeView',
@@ -9,7 +10,9 @@ export default {
       inputCity: "",
       inputCountry: "",
       cities: [],
-      editingCity: null
+      editingCity: null,
+      message: "",
+      user: null
     }
   },
   methods: {
@@ -83,17 +86,39 @@ export default {
       const ref = doc(db, "viajes", city.id) // ruta donde queremos eliminar
       await deleteDoc(ref) // la acción de eliminar
       // await this.getCities()
+    },
+    logout() {
+      auth.signOut().then(() => {
+        this.$router.push('/login')
+      })
     }
   },
   // Cuando el componente o vista está lista para el usuario, es visible, se ejecuta el método mounted
   mounted() {
     this.getCities();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        this.user = user;
+        this.message = 'Usuario logueado ' + user.email;
+        // ...
+      } else {
+        // User is signed out
+        // ...
+        this.message = 'No hay usuario logueado';
+      }
+    });
   }
 }
 </script>
 
 <template>
   <main style="margin-top: 100px;">
+
+    <h1>{{ message }}</h1>
+    <button v-if="user != null" @click="logout">Cerrar sesión</button>
 
     <div>
       <input v-model="inputCity" placeholder="Ciudad" type="text">
